@@ -6,10 +6,10 @@ require 'functions.php';
 require 'config.php';
 
 # number of rows to grab from tail
-define("NUMROWS", 6);
+define("NUMROWS", 12);
 
 $tbl = "mountmaya";
-$numToClean = 6;
+$numToClean = 12;
 
 $ftpFilename = "ftp://".FTPUSER.":".FTPPASS."@".FTPHOST;
 

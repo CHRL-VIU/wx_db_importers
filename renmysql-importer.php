@@ -6,12 +6,12 @@ include 'functions.php';
 $curStation = "rennellpass";
 
 // number of rows to append from data garrison
-$maxRows = -6;
+$maxRows = -12;
 $url = "https://datagarrison.com/users/300234010412670/300234010412670/temp/300234010412670_live.txt";
 $fields = "DateTime, Solar_Rad, Snow_Depth, Rain, Air_Temp, RH, Wind_Speed, Gust_Speed, Wind_Dir";
 
 // number of rows to update for clean table
-$numToClean = 6;
+$numToClean = 12;
 
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
 

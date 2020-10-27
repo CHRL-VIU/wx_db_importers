@@ -13,7 +13,7 @@ if (mysqli_connect_errno())
   }
 
 // set number of records to pull this is also the number that is appended
-$maxRows = 1;
+$maxRows = 6;
 $file = file_get_contents('https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html');
 
 // code sourced from Ron's legacy DEF tables on galiano
