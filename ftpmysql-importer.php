@@ -8,7 +8,8 @@ $ftpFilename = "ftp://".FTPUSER.":".FTPPASS."@".FTPHOST;
 
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
 
-$numRowsToClean = 581;
+# need to add 1 to the amount you actually want
+$numRowsToClean = 73;
 
 if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
@@ -173,7 +174,7 @@ foreach ($stations as $curStation) {
         // convert clean array to a string                    
         $string = implode("','", $row_select);
 
-        // import to clean tbl 
+        // import to clean tbl ignore duplicate entries, if you want to overwrite the existing rows change INSERT IGNORE to REPLACE 
         if (!mysqli_query($conn, "INSERT IGNORE into `clean_$curStation` ($fields) values('$string')")) {
             exit("Insert Query Error description: " . mysqli_error($conn));
         }
