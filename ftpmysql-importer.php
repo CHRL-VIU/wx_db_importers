@@ -8,7 +8,7 @@ $ftpFilename = "ftp://".FTPUSER.":".FTPPASS."@".FTPHOST;
 
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
 
-$numRowsToClean = 73;
+$numRowsToClean = 581;
 
 if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
@@ -106,9 +106,9 @@ $swMap = array(
 
 // define array of offsets to apply to stations
 $gdist = array(
-    "claytonfalls" => 506.3,
-    "homathko" => 610.0,
-    "klinaklini" => 565.9,
+    #"claytonfalls" => 506.3,
+    #"homathko" => 610.0,
+    #"klinaklini" => 565.9,
     "plummerhut" => 630 // need to define from cur. conditions file that is on usb still in the data logger
 );
 
