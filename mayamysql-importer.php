@@ -11,17 +11,26 @@ define("NUMROWS", 12);
 $tbl = "mountmaya";
 $numToClean = 12;
 
-$ftpFilename = "ftp://".FTPUSER.":".FTPPASS."@".FTPHOST;
-
+$ftpFilename = "ftps://".FTPUSER.":".FTPPASS."@".FTPHOST;
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
+
+$ftpStreamOptions = array(
+    "ssl"=>array(
+        "verify_peer"=>false,
+        "verify_peer_name"=>false,
+    ),
+);
+$ftpStreamContext = stream_context_create($ftpStreamOptions);
+$ftpFileArray = file($ftpFilename, false, $ftpStreamContext);
 
 if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
+    exit;
 }
 
-if (!file_exists($ftpFilename)) {
-        echo "File not found. Make sure you specified the correct path.\n";
-        exit;
+if (!$ftpFileArray) {
+  echo "Error connecting to FTPS filename $ftpFilename";
+  exit;
 }
 
 # create array of data from FTP only grab num rows we need. 
@@ -34,7 +43,7 @@ PrecipGaugeLvl,PrecipGaugeLvl_Avg,PrecipGaugeLvl_Std,PrecipGaugeLvl_Min,PrecipGa
 PrecipGaugeTemp_Avg,PrecipGaugeTemp_Std,PrecipGaugeTemp_Min,PrecipGaugeTemp_Max,AirTC2,AirTC2_Avg,AirTC2_Std,AirTC2_Min,AirTC2_Max";
 
 # get tail of ftp data. still has to load whole file first 
-$csv = array_slice(array_map('str_getcsv', file($ftpFilename)), -NUMROWS);
+$csv = array_slice(array_map('str_getcsv', $ftpFileArray), -NUMROWS);
 
 $lines = 0;
 
