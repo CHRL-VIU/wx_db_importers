@@ -24,8 +24,8 @@ $ftpStreamContext = stream_context_create($ftpStreamOptions);
 $ftpFileArray = file($ftpFilename, false, $ftpStreamContext);
 
 if (mysqli_connect_errno()) {
-    echo "Failed to connect to MySQL: " . mysqli_connect_error();
-    exit;
+  echo "Failed to connect to MySQL: " . mysqli_connect_error();
+  exit;
 }
 
 if (!$ftpFileArray) {
@@ -42,6 +42,8 @@ Rain_mm_Tot,BaroP,BaroP_Avg,BaroP_Std,BaroP_Min,BaroP_Max,SolarRad,SolarRad_Avg,
 PrecipGaugeLvl,PrecipGaugeLvl_Avg,PrecipGaugeLvl_Std,PrecipGaugeLvl_Min,PrecipGaugeLvl_Max,PrecipGaugeTemp,
 PrecipGaugeTemp_Avg,PrecipGaugeTemp_Std,PrecipGaugeTemp_Min,PrecipGaugeTemp_Max,AirTC2,AirTC2_Avg,AirTC2_Std,AirTC2_Min,AirTC2_Max";
 
+
+
 # get tail of ftp data. still has to load whole file first 
 $csv = array_slice(array_map('str_getcsv', $ftpFileArray), -NUMROWS);
 
@@ -49,12 +51,12 @@ $lines = 0;
 
 foreach ($csv as $line) {
        
-        $lines++;
+    $lines++;
 
-        $linemysql = implode("','",$line);
+    $linemysql = implode("','",$line);
 
-        // use the first entry of the linearray array to find the appropriate table. 
-         $query = "insert ignore into `raw_$tbl` ($fields) values('$linemysql');";
+    // use the first entry of the linearray array to find the appropriate table. 
+    $query = "insert ignore into `raw_$tbl` ($fields) values('$linemysql');";
 
     if (!mysqli_query($conn, $query)) {
         exit("Insert Query Error description: " . mysqli_error($conn));
