@@ -42,8 +42,6 @@ Rain_mm_Tot,BaroP,BaroP_Avg,BaroP_Std,BaroP_Min,BaroP_Max,SolarRad,SolarRad_Avg,
 PrecipGaugeLvl,PrecipGaugeLvl_Avg,PrecipGaugeLvl_Std,PrecipGaugeLvl_Min,PrecipGaugeLvl_Max,PrecipGaugeTemp,
 PrecipGaugeTemp_Avg,PrecipGaugeTemp_Std,PrecipGaugeTemp_Min,PrecipGaugeTemp_Max,AirTC2,AirTC2_Avg,AirTC2_Std,AirTC2_Min,AirTC2_Max";
 
-
-
 # get tail of ftp data. still has to load whole file first 
 $csv = array_slice(array_map('str_getcsv', $ftpFileArray), -NUMROWS);
 
