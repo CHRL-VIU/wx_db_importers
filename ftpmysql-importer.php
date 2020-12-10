@@ -178,8 +178,8 @@ foreach ($stations as $curStation) {
         // convert clean array to a string                    
         $string = implode("','", $row_select);
 
-        $query = "REPLACE `clean_$curStation` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
-        //$query = "INSERT IGNORE into `clean_$curStation` ($cleanFields) values('$string')";
+        //$query = "UPDATE `clean_$curStation` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
+        $query = "INSERT IGNORE into `clean_$curStation` ($cleanFields) values('$string')";
 
         // import to clean tbl 
         if (!mysqli_query($conn, $query)) {
