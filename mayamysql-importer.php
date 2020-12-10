@@ -10,7 +10,7 @@ require 'config.php';
 define("NUMROWS", 12);
 
 $tbl = "mountmaya";
-$numToClean = 48300; // was 12 hr
+$numToClean = 30000; // was 12 hr
 
 $ftpFilename = "ftps://".FTPUSER.":".FTPPASS."@".FTPHOST;
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
@@ -64,9 +64,31 @@ foreach ($csv as $line) {
 }
 
 // Then update clean table //
+// temp change
+function getMySQLRows2($conn, $stationName, $numRows) {
+
+    $sql = "(SELECT * FROM `$stationName` ORDER BY DateTime asc LIMIT $numRows) order by DateTime";
+
+    $result = mysqli_query($conn,$sql);
+
+    if(!$result){
+        exit("Select Query Error Description: ". mysqli_error($conn));
+    }
+
+    // put query in assoc array 
+    $raw_array = array();
+
+    while($row = mysqli_fetch_assoc($result)) {
+        $raw_array[] = $row;
+        }
+
+    return $raw_array;
+}
 
 // get rows from mysql
-$rawRows = getMySQLRows($conn, "raw_$tbl", $numToClean);
+$rawRows = getMySQLRows2($conn, "raw_$tbl", $numToClean);
+
+
 
 $lineNum = 0;
 foreach ($rawRows as $line) {
