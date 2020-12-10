@@ -5,7 +5,7 @@ require 'functions.php';
 
 $tbl = "steph3";
 $maxRows = -12;
-$numToClean = 6; 
+$numToClean = 47200; 
 $url = "https://datagarrison.com/users/300234010412670/300234010497280/temp/300234010497280_live.txt";
 $data = array_slice(file($url), $maxRows);
 $fields = "DateTime, Lysimeter, Rain, Solar_Rad, Snow_Depth, Current, Air_Temp, RH, Wind_Speed, Gust_Speed, Wind_Dir, Backup_Batt";
@@ -48,9 +48,12 @@ $rawRows = getMySQLRows($conn, "raw_$tbl", $numToClean);
 
 $lineNum = 0;
 foreach ($rawRows as $line) {
-
+    $curDateTime = $line["DateTime"];
+	$curWatYr = wtr_yr($curDateTime, 10); // calc wat yr
+	
 	$cleanRow = array(
 		"DateTime" => $line["DateTime"],
+		"WatYr" =>  $curWatYr,
 		"Air_Temp" => $line["Air_Temp"],
 		"Rh" => $line["RH"],
 		"Wind_Speed" => $line["Wind_Speed"],
@@ -68,12 +71,12 @@ foreach ($rawRows as $line) {
 		$values = implode("','", array_values($cleanRow));
 	}
 
-	// convert clean array to a string                    
-	$string = implode("','", $cleanRow);
+    $query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
+    //$query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
 
-	if (!mysqli_query($conn, "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')")) {
-		exit("Insert Query Error description: " . mysqli_error($conn));
-	}
+    if (!mysqli_query($conn, $query)) {
+        exit("Insert Query Error description: " . mysqli_error($conn));
+    }
 }		
 
 mysqli_close($conn);

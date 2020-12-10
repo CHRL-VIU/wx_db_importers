@@ -1,3 +1,4 @@
+
 <?php
 
 // This script updates the viu hydromet mysql data base tables for just mt maya, pulls last 12 hours from ftp and updates table
@@ -9,7 +10,7 @@ require 'config.php';
 define("NUMROWS", 12);
 
 $tbl = "mountmaya";
-$numToClean = 12;
+$numToClean = 48300; // was 12 hr
 
 $ftpFilename = "ftps://".FTPUSER.":".FTPPASS."@".FTPHOST;
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
@@ -32,6 +33,7 @@ if (!$ftpFileArray) {
   echo "Error connecting to FTPS filename $ftpFilename";
   exit;
 }
+
 
 # create array of data from FTP only grab num rows we need. 
 $fields = "DateTime,RECORD,BattV_Min,BattV_Max,BattV_Avg,PTemp_C_Avg,PTemp_C_Min,PTemp_C_Max,EnclosureTemp_Avg,
@@ -83,8 +85,12 @@ foreach ($rawRows as $line) {
     $prevPCraw = $line["PrecipGaugeLvl_Avg"];
     $lineNum++;
 
+    $curDateTime = $line["DateTime"];
+    $curWatYr = wtr_yr($curDateTime, 10); // calc wat yr
+
     $cleanRow = array(
         "DateTime" => $line["DateTime"],
+        "WatYr" =>  $curWatYr,
         "Air_Temp" => $line["AirTC_Avg"],
         "Rh" => $line["RH_Avg"],
         "BP" => $line["BaroP_Avg"],
@@ -104,10 +110,11 @@ foreach ($rawRows as $line) {
         $values = implode("','", array_values($cleanRow));
     }
 
-    // convert clean array to a string                    
-    $string = implode("','", $cleanRow);
+    $query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
+    //$query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
 
-    if (!mysqli_query($conn, "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')")) {
+
+    if (!mysqli_query($conn, $query)) {
         exit("Insert Query Error description: " . mysqli_error($conn));
     }
 }

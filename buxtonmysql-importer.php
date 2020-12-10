@@ -3,7 +3,7 @@
 require 'config.php';
 require 'functions.php';
 $tbl = "eastbuxton";
-$numToClean = 6;
+$numToClean = 33800;
 
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
 
@@ -13,7 +13,7 @@ if (mysqli_connect_errno())
   }
 
 // set number of records to pull this is also the number that is appended
-$maxRows = 6;
+$maxRows = 1;
 $file = file_get_contents('https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html');
 
 // code sourced from Ron's legacy DEF tables on galiano
@@ -106,9 +106,13 @@ foreach ($rawRows as $line) {
     // store current pc_raw val for next row    
     $prevPCraw = $line["Pcp_GaugeLvl"];
     $lineNum++;
+    
+    $curDateTime = $line["DateTime"];
+    $curWatYr = wtr_yr($curDateTime, 10); // calc wat yr
 
     $cleanRow = array(
         "DateTime" => $line["DateTime"],
+        "WatYr" =>  $curWatYr,
         "Air_Temp" => $line["Air_Temp"],
         "Rh" => $line["Relative_Humidity"],
         "BP" => $line["Air_Pressure"],
@@ -127,10 +131,10 @@ foreach ($rawRows as $line) {
         $values = implode("','", array_values($cleanRow));
     }
 
-    // convert clean array to a string                    
-    $string = implode("','", $cleanRow);
+    $query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
+    //$query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
 
-    if (!mysqli_query($conn, "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')")) {
+   if (!mysqli_query($conn, $query)) {
         exit("Insert Query Error description: " . mysqli_error($conn));
     }
 }	

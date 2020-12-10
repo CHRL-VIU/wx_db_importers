@@ -8,8 +8,7 @@ $ftpFilename = "ftp://".FTPUSER.":".FTPPASS."@".FTPHOST;
 
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
 
-# need to add 1 to the amount you actually want
-$numRowsToClean = 73;
+$numRowsToClean = 43100;
 
 if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
@@ -69,8 +68,7 @@ $stations = array(
     "mountarrowsmith",
     "mountcayley",
     "perseverance",
-    "tetrahedron",
-    "plummerhut"
+    "tetrahedron"
 );
 
 // Define array map of station precip location
@@ -85,8 +83,7 @@ $pcpMap = array(
     "mountarrowsmith" => "PC",
     "mountcayley" => "PC", // no pipe here but need to define
     "perseverance" => "PC",
-    "tetrahedron" => "PC",
-    "plummerhut" => "PC" // no pipe here
+    "tetrahedron" => "PC"
 );
 
 // map for different SWE col names
@@ -101,19 +98,18 @@ $swMap = array(
     "mountarrowsmith" => "SW",
     "mountcayley" => "SW", // no scale here but need to define
     "perseverance" => "SW",
-    "tetrahedron" => "SW_SSG",
-    "plummerhut" => "SW" // no scale here but need to define
+    "tetrahedron" => "SW_SSG"
 );
 
 // define array of offsets to apply to stations
 $gdist = array(
-    #"claytonfalls" => 506.3,
-    #"homathko" => 610.0,
-    #"klinaklini" => 565.9,
-    "plummerhut" => 630 // need to define from cur. conditions file that is on usb still in the data logger
+    "claytonfalls" => 506.3,
+    "homathko" => 610.0,
+    "klinaklini" => 565.9,
 );
 
-$fields = "DateTime, Air_Temp, RH, BP, Wind_Speed, Wind_Dir, Pk_Wind_Speed, Pk_Wind_Dir, PP_Tipper, PC_Raw_Pipe, PP_Pipe, Snow_Depth, SWE, Solar_Rad, Soil_Moisture, Batt";
+// redefine
+$cleanFields = "DateTime, WatYr, Air_Temp, RH, BP, Wind_Speed, Wind_Dir, Pk_Wind_Speed, Pk_Wind_Dir, PP_Tipper, PC_Raw_Pipe, PP_Pipe, Snow_Depth, SWE, Solar_Rad, Soil_Moisture, Batt";
 
 foreach ($stations as $curStation) {
     //select from bottom of table and skip the first row of the query defined in the first line under the calcs section
@@ -151,9 +147,13 @@ foreach ($stations as $curStation) {
             $snowDepth = $line['SDepth'];
         }
 
+        $curDateTime = $line["DateTime"];
+        $curWatYr = wtr_yr($curDateTime, 10); // calc wat yr
+
         //// Create new clean row for clean tbl //// 
         $row_select = array(
             $line['DateTime'],
+            $curWatYr,
             $line['Temp'],
             $line['Rh'],
             $kpa,
@@ -174,8 +174,11 @@ foreach ($stations as $curStation) {
         // convert clean array to a string                    
         $string = implode("','", $row_select);
 
-        // import to clean tbl ignore duplicate entries, if you want to overwrite the existing rows change INSERT IGNORE to REPLACE 
-        if (!mysqli_query($conn, "INSERT IGNORE into `clean_$curStation` ($fields) values('$string')")) {
+        $query = "UPDATE `clean_$curStation` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
+        //$query = "INSERT IGNORE into `clean_$curStation` ($cleanFields) values('$string')";
+
+        // import to clean tbl 
+        if (!mysqli_query($conn, $query)) {
             exit("Insert Query Error description: " . mysqli_error($conn));
         }
     }
