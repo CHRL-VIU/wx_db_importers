@@ -20,4 +20,23 @@ function getMySQLRows($conn, $stationName, $numRows) {
     return $raw_array;
 }
 
+// return water year based on input date time string
+function wtr_yr ($DATETIME, $START_MONTH=10) {
+  # Convert dates into POSIXlt
+  $datetime = strtotime($DATETIME);
+  $curYear = date("Y", $datetime);
+  $curMonth= date("m",$datetime);
+  # Year offset
+  if($curMonth >= $START_MONTH){
+    $offset = 1;
+  }
+  else{$offset = 0;}
+
+  # water year
+  $adjYear = $curYear+$offset;
+
+  # return water year
+  return $adjYear;
+} 
+
 ?>
