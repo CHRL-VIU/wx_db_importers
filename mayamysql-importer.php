@@ -10,7 +10,7 @@ require 'config.php';
 define("NUMROWS", 12);
 
 $tbl = "mountmaya";
-$numToClean = 30000; // was 12 hr
+$numToClean = 12; // was 12 hr
 
 $ftpFilename = "ftps://".FTPUSER.":".FTPPASS."@".FTPHOST;
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
@@ -111,8 +111,8 @@ foreach ($rawRows as $line) {
         $values = implode("','", array_values($cleanRow));
     }
 
-    $query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
-    //$query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
+    //$query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
+    $query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
 
 
     if (!mysqli_query($conn, $query)) {
