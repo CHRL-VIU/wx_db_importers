@@ -11,7 +11,7 @@ $url = "https://datagarrison.com/users/300234010412670/300234010412670/temp/3002
 $fields = "DateTime, Solar_Rad, Snow_Depth, Rain, Air_Temp, RH, Wind_Speed, Gust_Speed, Wind_Dir";
 
 // number of rows to update for clean table
-$numToClean = 45000;
+$numToClean = 6;
 
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
 
@@ -82,8 +82,8 @@ foreach ($rawRows as $line) {
         $values = implode("','", array_values($cleanRow));
     }
 
-    $query = "UPDATE `clean_$curStation` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
-    //$query = "INSERT IGNORE into `clean_$curStation` ($fields) values('$values')";
+    //$query = "UPDATE `clean_$curStation` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
+    $query = "INSERT IGNORE into `clean_$curStation` ($fields) values('$values')";
 
 
     if (!mysqli_query($conn, $query)) {
