@@ -90,6 +90,8 @@ $rawRows = getMySQLRows2($conn, "raw_$tbl", $numToClean);
 
 
 
+
+
 $lineNum = 0;
 foreach ($rawRows as $line) {
     ///// calcs //////
