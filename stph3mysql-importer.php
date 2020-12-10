@@ -5,7 +5,7 @@ require 'functions.php';
 
 $tbl = "steph3";
 $maxRows = -12;
-$numToClean = 47200; 
+$numToClean = 6; 
 $url = "https://datagarrison.com/users/300234010412670/300234010497280/temp/300234010497280_live.txt";
 $data = array_slice(file($url), $maxRows);
 $fields = "DateTime, Lysimeter, Rain, Solar_Rad, Snow_Depth, Current, Air_Temp, RH, Wind_Speed, Gust_Speed, Wind_Dir, Backup_Batt";
@@ -71,8 +71,8 @@ foreach ($rawRows as $line) {
 		$values = implode("','", array_values($cleanRow));
 	}
 
-    $query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
-    //$query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
+    //$query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
+    $query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
 
     if (!mysqli_query($conn, $query)) {
         exit("Insert Query Error description: " . mysqli_error($conn));

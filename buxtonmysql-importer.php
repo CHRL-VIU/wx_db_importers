@@ -3,7 +3,7 @@
 require 'config.php';
 require 'functions.php';
 $tbl = "eastbuxton";
-$numToClean = 33800;
+$numToClean = 6;
 
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
 
@@ -131,8 +131,8 @@ foreach ($rawRows as $line) {
         $values = implode("','", array_values($cleanRow));
     }
 
-    $query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
-    //$query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
+    //$query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
+    $query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
 
    if (!mysqli_query($conn, $query)) {
         exit("Insert Query Error description: " . mysqli_error($conn));
