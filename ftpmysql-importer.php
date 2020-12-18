@@ -39,6 +39,10 @@ foreach ($csv as $line) {
         # grab current station name without white space to match mysql tbl
         $curStation = strtolower(str_replace(' ', '', $line[0]));
 
+        if($curStation == 'lowercain'){
+            $lines++;
+        }
+
         // remove station name from array bc it is not in mysql tbl
         $data = array_slice($line, 1);
 
