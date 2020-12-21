@@ -27,6 +27,10 @@ $csv = array_map('str_getcsv', file($ftpFilename));
 $fields = implode(",",array_slice($csv[0], 1));
 $lines = 0;
 
+// stns to skip
+
+$skipStn = array("lowercain", "mountarrowsmith", "claytonfalls");
+
 //loop through csv and insert to current station
 foreach ($csv as $line) {
         if($lines == 0){ 
@@ -39,8 +43,8 @@ foreach ($csv as $line) {
         # grab current station name without white space to match mysql tbl
         $curStation = strtolower(str_replace(' ', '', $line[0]));
 
-        if($curStation == 'lowercain'){
-            $lines++;
+        if(in_array($curStation, $skipStn)){
+            continue;
         }
 
         // remove station name from array bc it is not in mysql tbl
@@ -64,13 +68,13 @@ foreach ($csv as $line) {
 
 $stations = array(
     "apelake",
-    "claytonfalls",
+    //"claytonfalls",
     "homathko",
     "klinaklini",
-    "lowercain",
+    //"lowercain",
     "machmell",
     "machmellkliniklini",
-    "mountarrowsmith",
+   // "mountarrowsmith",
     "mountcayley",
     "perseverance",
     "tetrahedron",
