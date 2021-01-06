@@ -29,7 +29,7 @@ $lines = 0;
 
 // stns to skip
 
-$skipStn = array("lowercain", "mountarrowsmith", "claytonfalls");
+$skipStn = array("apelake", "lowercain", "mountarrowsmith", "claytonfalls");
 
 //loop through csv and insert to current station
 foreach ($csv as $line) {
@@ -67,7 +67,7 @@ foreach ($csv as $line) {
 // Start Clean Table Update
 
 $stations = array(
-    "apelake",
+    //"apelake",
     //"claytonfalls",
     "homathko",
     "klinaklini",
