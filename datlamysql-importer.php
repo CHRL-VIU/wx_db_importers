@@ -9,7 +9,9 @@ $maxRows = -12;
 $numToClean = 6; 
 $url = "https://datagarrison.com/users/300234010412670/300234011205420/temp/300234011205420_live.txt";
 $data = array_slice(file($url), $maxRows);
-$fields = "DateTime, Dist_to_Snow, Rain, Wind_Speed, Gust_Speed, Wind_Dir, Solar_Rad, Air_Temp, RH, Snow_Depth";
+# fields needs to match order of data on $url.txt
+# 2021-09-20 data garison is coming in as (DateTime, Dist_to_snow, Rain, Wind_Speed, Gust_Speed, Wind_Dir RH, Air_Temp, Snow_Depth, Solar_Rad)
+$fields = "DateTime, Dist_to_Snow, Rain, Wind_Speed, Gust_Speed, Wind_Dir, Air_Temp, RH, Solar_Rad, Snow_Depth";
 
 # db and file checks
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
