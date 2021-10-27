@@ -3,7 +3,8 @@
 require 'config.php';
 require 'functions.php';
 $tbl = "eastbuxton";
-$numToClean = 6;
+
+$maxRows = 24; // number of raw rows to grab and clean rows to update on our db
 
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
 
@@ -12,8 +13,8 @@ if (mysqli_connect_errno())
   echo "Failed to connect to MySQL: " . mysqli_connect_error();
   }
 
-// set number of records to pull this is also the number that is appended
-$maxRows = 1;
+// Scrape buxton wx data from hakai website - can visualize there javascrip table on the html source below.
+// view-source:https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html
 $file = file_get_contents('https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html');
 
 // code sourced from Ron's legacy DEF tables on galiano
@@ -56,18 +57,18 @@ while (count($dataRaw) > 0) {
             'Air_Temp'=>$row_src[1],
             'Relative_Humidity'=>$row_src[2],
             'Snow_Depth'=>$row_src[3], // in metres
-            'Wind_Spd'=>$row_src[5], // in m/s
-            'Wind_Dir'=>$row_src[6], // rm young is pointed north 
-            'Air_Pressure'=>$row_src[7], // in hpa
-            'SolarRad_Avg'=>$row_src[8],
-            'SolarRad_24hr'=>$row_src[9],
-            'Rain'=>$row_src[10],
-            'Rain_24hr'=>$row_src[11],
-            'Pcp_GaugeLvl'=>$row_src[12], // in metres
-            'Pcp_GaugeTemp'=>$row_src[13],
-            'EnclosureTemp'=>$row_src[14],
-            'Panel_Temp'=>$row_src[15],
-            'BattVolt'=>$row_src[16]
+            'Wind_Spd'=>$row_src[4], // in m/s
+            'Wind_Dir'=>$row_src[5], // rm young is pointed north, so need to adjust 180 deg later 
+            'Air_Pressure'=>$row_src[6], // in hpa
+            'SolarRad_Avg'=>$row_src[7],
+            'SolarRad_24hr'=>$row_src[8],
+            'Rain'=>$row_src[9],
+            'Rain_24hr'=>$row_src[10],
+            'Pcp_GaugeLvl'=>$row_src[11], // in metres
+            'Pcp_GaugeTemp'=>$row_src[12],
+            'EnclosureTemp'=>$row_src[13],
+            'Panel_Temp'=>$row_src[14],
+            'BattVolt'=>$row_src[15]
         );
 //print_r($dataRow);   
 }
@@ -88,7 +89,7 @@ if (!mysqli_query($conn,$query))
 // Then update clean table //
 
 // get rows from mysql
-$rawRows = getMySQLRows($conn, "raw_$tbl", $numToClean);
+$rawRows = getMySQLRows($conn, "raw_$tbl", $maxRows);
 
 $lineNum = 0;
 foreach ($rawRows as $line) {
@@ -116,7 +117,7 @@ foreach ($rawRows as $line) {
         "Air_Temp" => $line["Air_Temp"],
         "Rh" => $line["Relative_Humidity"],
         "BP" => $line["Air_Pressure"],
-        "Wind_Speed" => $line["Wind_Spd"],
+        "Wind_Speed" => $line["Wind_Spd"] * 3.6, // to km/hr
         "Wind_Dir" => ($line["Wind_Dir"] >= 180 ? $line["Wind_Dir"] -= 180 : $line["Wind_Dir"] += 180), // rm young is backwards on tower
         "PP_Tipper" => $line["Rain"],
         "PC_Raw_Pipe" => $line["Pcp_GaugeLvl"] * 1000,
