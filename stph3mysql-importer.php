@@ -60,7 +60,7 @@ foreach ($rawRows as $line) {
 		"Wind_Dir" => $line["Wind_Dir"],
 		"Pk_Wind_Speed" => $line["Gust_Speed"],
 		"PP_Tipper" => $line["Rain"],
-		"Snow_Depth" => $line["Snow_Depth"], // distance to ground processed on unit
+		"Snow_Depth" => -$line["Snow_Depth"] + 234.91, // as of 2021-10 logger reporting positive distance to snow, 234.91 is eyeballed off the summer bare ground depth 
 		"Lysimeter" => $line['Lysimeter'],
 		"Solar_Rad" => $line["Solar_Rad"],
 		"Batt" => $line["Backup_Batt"]
@@ -77,7 +77,7 @@ foreach ($rawRows as $line) {
     if (!mysqli_query($conn, $query)) {
         exit("Insert Query Error description: " . mysqli_error($conn));
     }
-}		
+}
 
 mysqli_close($conn);
 
