@@ -7,10 +7,10 @@ require 'functions.php';
 require 'config.php';
 
 # number of rows to grab from tail
-define("NUMROWS", 12);
+define("NUMROWS", 720);
 
 $tbl = "mountmaya";
-$numToClean = 12; // was 12 hr
+$numToClean = 720; // was 12 hr
 
 $ftpFilename = "ftps://".FTPUSER.":".FTPPASS."@".FTPHOST;
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
