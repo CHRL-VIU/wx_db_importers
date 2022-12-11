@@ -1,5 +1,5 @@
 <?php
-// query's html file from hakai live website grabs javascript table. 
+// query's html file from hakai live website grabs javascript table.
 require 'config.php';
 require 'functions.php';
 $tbl = "eastbuxton";
@@ -53,12 +53,12 @@ while (count($dataRaw) > 0) {
 
 {
         $dataRow=array(
-            'DateTime'=>parse_observation_time($row_src[0]),  
+            'DateTime'=>parse_observation_time($row_src[0]),
             'Air_Temp'=>$row_src[1],
             'Relative_Humidity'=>$row_src[2],
             'Snow_Depth'=>$row_src[3], // in metres
             'Wind_Spd'=>$row_src[4], // in m/s
-            'Wind_Dir'=>$row_src[5], // rm young is pointed north, so need to adjust 180 deg later 
+            'Wind_Dir'=>$row_src[5], // rm young is pointed north, so need to adjust 180 deg later
             'Air_Pressure'=>$row_src[6], // in hpa
             'SolarRad_Avg'=>$row_src[7],
             'SolarRad_24hr'=>$row_src[8],
@@ -70,7 +70,7 @@ while (count($dataRaw) > 0) {
             'Panel_Temp'=>$row_src[14],
             'BattVolt'=>$row_src[15]
         );
-//print_r($dataRow);   
+//print_r($dataRow);
 }
 
 if(count($dataRow)>0){
@@ -104,10 +104,10 @@ foreach ($rawRows as $line) {
         $PP_Pipe = ($line["Pcp_GaugeLvl"] - $prevPCraw) * 1000;
     }
 
-    // store current pc_raw val for next row    
+    // store current pc_raw val for next row
     $prevPCraw = $line["Pcp_GaugeLvl"];
     $lineNum++;
-    
+
     $curDateTime = $line["DateTime"];
     $curWatYr = wtr_yr($curDateTime, 10); // calc wat yr
 
@@ -122,7 +122,7 @@ foreach ($rawRows as $line) {
         "PP_Tipper" => $line["Rain"],
         "PC_Raw_Pipe" => $line["Pcp_GaugeLvl"] * 1000,
         "PP_Pipe" => $PP_Pipe,
-        "Snow_Depth" => $line["Snow_Depth"], // distance to ground processed on unit
+        "Snow_Depth" => $line["Snow_Depth"] * 100, // distance to ground processed on unit
         "Solar_Rad" => $line["SolarRad_Avg"],
         "Batt" => $line["BattVolt"]
     );
@@ -138,6 +138,6 @@ foreach ($rawRows as $line) {
    if (!mysqli_query($conn, $query)) {
         exit("Insert Query Error description: " . mysqli_error($conn));
     }
-}	
+}
 mysqli_close($conn);
 ?>
