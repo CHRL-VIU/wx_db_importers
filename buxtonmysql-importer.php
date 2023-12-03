@@ -2,9 +2,34 @@
 // query's html file from hakai live website grabs javascript table.
 require 'config.php';
 require 'functions.php';
-$tbl = "eastbuxton";
 
-$maxRows = 24; // number of raw rows to grab and clean rows to update on our db
+$tbl = "eastbuxton";
+$file_path = '../data/eastbuxton/EastRidgeWx_OneHour.dat'; // update 2023-12-01 by alex from original html scrape here 'https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html'
+$maxRows = -24; // negative to grab end of the file
+$field_row_num = 1; // the row num of the raw input fields
+$viu_raw_keys = array(
+    'DateTime',
+    'Air_Temp',
+    'Relative_Humidity',
+    'Snow_Depth',
+    'Wind_Spd',
+    'Wind_Dir',
+    'Air_Pressure',
+    'SolarRad_Avg',
+    'SolarRad_24hr',
+    'Rain',
+    'Rain_24hr',
+    'Pcp_GaugeLvl',
+    'Pcp_GaugeTemp',
+    'EnclosureTemp',
+    'Panel_Temp',
+    'BattVolt'
+);
+
+if (!file_exists($file_path)) {
+    echo "File not found. Make sure you specified the correct path.\n";
+    exit;
+}
 
 $conn = mysqli_connect(MYSQLHOST, MYSQLUSER, MYSQLPASS, MYSQLDB);
 
@@ -13,79 +38,51 @@ if (mysqli_connect_errno())
   echo "Failed to connect to MySQL: " . mysqli_connect_error();
   }
 
-// Scrape buxton wx data from hakai website - can visualize there javascrip table on the html source below.
-// view-source:https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html
-$file = file_get_contents('https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html');
+$file = file($file_path);
 
-// code sourced from Ron's legacy DEF tables on galiano
-preg_match('/data\.addRows\(\[(.*)\]\).*control = new google\.visualization\.ControlWrapper/s',$file,$matches);
-// note: data is javascript with month as 0-11 , date is separated with colons so we can reconstruct it later (need to normalize string lengths)
+$data = array_slice($file, $maxRows);
 
-$str=preg_replace('/new Date\(([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)\)/ms','"\1:\2:\3:\4:\5"',$matches[1]);
-$rows=explode('],',$str);
-$dataRaw = array();
-if(count($rows)>0)
-{
-// grab most recent samples first, limited to max rows
-	while(count($dataRaw) <= $maxRows && count($rows)>0)
-	{
-    	$dataRaw[]=str_replace(array('[',']'),'',array_pop($rows));
-	}
+$hakai_fields = str_getcsv($file[1], ',', '"');
+
+# loop through each line in the $data array number of lines can be controlled by the max rows param
+foreach ($data as $line) {
+
+    $datArray = str_getcsv($line, ',', '"');
+
+    $datArray = array_combine($hakai_fields, $datArray);
+
+    # format datetime to mysql time format, time is PST on garrison 
+    $datArray['TIMESTAMP'] = date("Y-m-d H:i:s", strtotime($datArray['TIMESTAMP'])); 
+
+    $dataRow=array(
+        'DateTime'=>$datArray['TIMESTAMP'],
+        'Air_Temp'=>$datArray['AirTemp_Avg'],
+        'Relative_Humidity'=>$datArray['RH_Avg'],
+        'Snow_Depth'=>$datArray['SR50A_TC_Distance_Avg'], // in metres
+        'Wind_Spd'=>$datArray['WindSpd_Avg'], // in m/s
+        'Wind_Dir'=>$datArray['WindDir_Avg'], // rm young is pointed north, so need to adjust 180 deg later 
+        'Air_Pressure'=>$datArray['StationAirPressure_Avg'], // in hpa
+        'SolarRad_Avg'=>$datArray['SolarRad_Avg'],
+        'SolarRad_24hr'=>$datArray['SolarRad_Tot_Tot'],
+        'Rain'=>$datArray['Rain_mm_Tot'],
+        'Rain_24hr'=>$datArray['RainToday'],
+        'Pcp_GaugeLvl'=>$datArray['PrecipGaugeLvl_Avg'], // in metres
+        'Pcp_GaugeTemp'=>$datArray['PrecipGaugeTemp'], // not averaged, inst.
+        'EnclosureTemp'=>$datArray['EnclosureTemp_Avg'],
+        'Panel_Temp'=>$datArray['PanelT_Avg'],
+        'BattVolt'=>$datArray['BattVolt_Avg']
+    );
+    # back to string format for mysql ingest
+    $datString = implode("','", $datArray);
+
+    // use the first entry of the linearray array to find the appropriate table. 
+     $query = "insert ignore into `raw_$tbl` ($viu_raw_keys) values('$datString');";
+
+if (!mysqli_query($conn, $query)) {
+    exit("Insert Query Error description: " . mysqli_error($conn));
+}
 }
 
-// function from Ron's legacy DEF tables on galiano
-function parse_observation_time($str)
-{
-    $date_str='';
-    $parts=explode(':',$str);
-    if(count($parts)==5)
-    {
-        $date_str=sprintf('%04d',$parts[0]).'-'.sprintf('%02d',((int)$parts[1]+1)).'-'.sprintf('%02d',$parts[2]).' '.sprintf('%02d',$parts[3]).':'.sprintf('%02d',$parts[4]).':00';
-    }
-    return $date_str;
-}
-
-// append array of wx observations to db until array is empty based on max rows
-while (count($dataRaw) > 0) {
- if(count($dataRaw)>0)
-    // gets first element of array
-    $row_src=str_getcsv(array_pop($dataRaw));
-
-{
-        $dataRow=array(
-            'DateTime'=>parse_observation_time($row_src[0]),
-            'Air_Temp'=>$row_src[1],
-            'Relative_Humidity'=>$row_src[2],
-            'Snow_Depth'=>$row_src[3], // in metres
-            'Wind_Spd'=>$row_src[4], // in m/s
-            'Wind_Dir'=>$row_src[5], // rm young is pointed north, so need to adjust 180 deg later
-            'Air_Pressure'=>$row_src[6], // in hpa
-            'SolarRad_Avg'=>$row_src[7],
-            'SolarRad_24hr'=>$row_src[8],
-            'Rain'=>$row_src[9],
-            'Rain_24hr'=>$row_src[10],
-            'Pcp_GaugeLvl'=>$row_src[11], // in metres
-            'Pcp_GaugeTemp'=>$row_src[12],
-            'EnclosureTemp'=>$row_src[13],
-            'Panel_Temp'=>$row_src[14],
-            'BattVolt'=>$row_src[15]
-        );
-//print_r($dataRow);
-}
-
-if(count($dataRow)>0){
-$fields = implode(", ", array_keys($dataRow));
-$values = implode("','", array_values($dataRow));
-}
-
-$query = "insert ignore into `raw_$tbl` ($fields) values('$values');";
-//print_r($query);
-
-if (!mysqli_query($conn,$query))
-            {
-            exit("Insert Query Error description: " . mysqli_error($conn));
-            }
-}
 // Then update clean table //
 
 // get rows from mysql
