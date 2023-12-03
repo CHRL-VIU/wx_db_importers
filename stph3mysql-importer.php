@@ -32,7 +32,7 @@ foreach ($data as $line) {
         $datArray[0] = date("Y-m-d H:i:s", strtotime($datArray[0])); 
 
         $datString = implode("','", $datArray);
-
+	
         // use the first entry of the linearray array to find the appropriate table. 
          $query = "insert ignore into `raw_$tbl` ($fields) values('$datString');";
 
@@ -73,7 +73,6 @@ foreach ($rawRows as $line) {
 
     //$query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
     $query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
-
     if (!mysqli_query($conn, $query)) {
         exit("Insert Query Error description: " . mysqli_error($conn));
     }
