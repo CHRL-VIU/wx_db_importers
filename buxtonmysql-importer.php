@@ -7,24 +7,7 @@ $tbl = "eastbuxton";
 $file_path = '../data/eastbuxton/EastRidgeWx_OneHour.dat'; // update 2023-12-01 by alex from original html scrape here 'https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html'
 $maxRows = -24; // negative to grab end of the file
 $field_row_num = 1; // the row num of the raw input fields
-$viu_raw_keys = array(
-    'DateTime',
-    'Air_Temp',
-    'Relative_Humidity',
-    'Snow_Depth',
-    'Wind_Spd',
-    'Wind_Dir',
-    'Air_Pressure',
-    'SolarRad_Avg',
-    'SolarRad_24hr',
-    'Rain',
-    'Rain_24hr',
-    'Pcp_GaugeLvl',
-    'Pcp_GaugeTemp',
-    'EnclosureTemp',
-    'Panel_Temp',
-    'BattVolt'
-);
+$viu_raw_keys = "DateTime,Air_Temp,Relative_Humidity,Snow_Depth,Wind_Spd,Wind_Dir,Air_Pressure,SolarRad_Avg,SolarRad_24hr,Rain,Rain_24hr,Pcp_GaugeLvl,Pcp_GaugeTemp,EnclosureTemp,Panel_Temp,BattVolt";
 
 if (!file_exists($file_path)) {
     echo "File not found. Make sure you specified the correct path.\n";
@@ -73,7 +56,7 @@ foreach ($data as $line) {
         'BattVolt'=>$datArray['BattVolt_Avg']
     );
     # back to string format for mysql ingest
-    $datString = implode("','", $datArray);
+    $datString = implode("','", $dataRow);
 
     // use the first entry of the linearray array to find the appropriate table. 
      $query = "insert ignore into `raw_$tbl` ($viu_raw_keys) values('$datString');";
