@@ -69,7 +69,7 @@ if (!mysqli_query($conn, $query)) {
 // Then update clean table //
 
 // get rows from mysql
-$rawRows = getMySQLRows($conn, "raw_$tbl", $maxRows);
+$rawRows = getMySQLRows($conn, "raw_$tbl", abs($maxRows));
 
 $lineNum = 0;
 foreach ($rawRows as $line) {
@@ -116,7 +116,7 @@ foreach ($rawRows as $line) {
     $query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
 
    if (!mysqli_query($conn, $query)) {
-        exit("Insert Query Error description: " . mysqli_error($conn));
+        exit("Clean Table Insert Error description: " . mysqli_error($conn));
     }
 }
 mysqli_close($conn);
