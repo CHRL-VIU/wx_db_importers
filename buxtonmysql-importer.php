@@ -49,7 +49,7 @@ foreach ($data as $line) {
         'SolarRad_24hr'=>$datArray['SolarRad_Tot_Tot'],
         'Rain'=>$datArray['Rain_mm_Tot'],
         'Rain_24hr'=>$datArray['RainToday'],
-        'Pcp_GaugeLvl'=>$datArray['PrecipGaugeLvl_Avg'], // in metres
+        'Pcp_GaugeLvl'=>$datArray['PrecipGaugeLvl'], // in metres
         'Pcp_GaugeTemp'=>$datArray['PrecipGaugeTemp'], // not averaged, inst.
         'EnclosureTemp'=>$datArray['EnclosureTemp_Avg'],
         'Panel_Temp'=>$datArray['PanelT_Avg'],
