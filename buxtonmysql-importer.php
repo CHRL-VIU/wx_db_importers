@@ -102,22 +102,29 @@ foreach ($rawRows as $line) {
         "PP_Tipper" => $line["Rain"],
         "PC_Raw_Pipe" => $line["Pcp_GaugeLvl"] * 1000,
         "PP_Pipe" => $PP_Pipe,
-        "Snow_Depth" => ($line["Snow_Depth"] == 0 ? NAN : (3.66 - $line["Snow_Depth"]) * 100), // Check and adjust snow depth
+        "Snow_Depth" => ($line["Snow_Depth"] == 0 ? 'NULL' : (3.66 - $line["Snow_Depth"]) * 100), // Check and adjust snow depth
         "Solar_Rad" => $line["SolarRad_Avg"],
         "Batt" => $line["BattVolt"]
     );
 
-    if (count($cleanRow) > 0) {
-        $fields = implode(", ", array_keys($cleanRow));
-        $values = implode("','", array_values($cleanRow));
-    }
+// Filter out keys with NULL values
+$cleanRow = array_filter($cleanRow, function ($value) {
+    return $value !== 'NULL';
+});
+
+if (count($cleanRow) > 0) {
+    $fields = implode(", ", array_keys($cleanRow));
+    $values = implode("','", array_values($cleanRow));
 
     //$query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
     $query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
 
-   if (!mysqli_query($conn, $query)) {
-        exit("Clean Table Insert Error description: " . mysqli_error($conn));
-    }
+    if (!mysqli_query($conn, $query)) {
+         exit("Clean Table Insert Error description: " . mysqli_error($conn));
+     }
+}
+
+
 }
 mysqli_close($conn);
 ?>
