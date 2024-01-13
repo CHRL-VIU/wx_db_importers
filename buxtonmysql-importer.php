@@ -4,7 +4,7 @@ require 'config.php';
 require 'functions.php';
 
 $tbl = "eastbuxton";
-$file_path = '../data/eastbuxton/EastRidgeWx_OneHour.dat'; // update 2023-12-01 by alex from original html scrape here 'https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html'
+$file_path = '/home/viuhydro/data/eastbuxton/EastRidgeWx_OneHour.dat'; // update 2023-12-01 by alex from original html scrape here 'https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html'
 $maxRows = -24; // negative to grab end of the file
 $field_row_num = 1; // the row num of the raw input fields
 $viu_raw_keys = "DateTime,Air_Temp,Relative_Humidity,Snow_Depth,Wind_Spd,Wind_Dir,Air_Pressure,SolarRad_Avg,SolarRad_24hr,Rain,Rain_24hr,Pcp_GaugeLvl,Pcp_GaugeTemp,EnclosureTemp,Panel_Temp,BattVolt";
