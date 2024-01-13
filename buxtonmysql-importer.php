@@ -102,7 +102,7 @@ foreach ($rawRows as $line) {
         "PP_Tipper" => $line["Rain"],
         "PC_Raw_Pipe" => $line["Pcp_GaugeLvl"] * 1000,
         "PP_Pipe" => $PP_Pipe,
-        "Snow_Depth" => $line["Snow_Depth"] * 100, // distance to ground processed on unit
+        "Snow_Depth" => ($line["Snow_Depth"] == 0 ? NAN : ($line["Snow_Depth"] - 3.66) * 100), // Check and adjust snow depth
         "Solar_Rad" => $line["SolarRad_Avg"],
         "Batt" => $line["BattVolt"]
     );

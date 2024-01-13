@@ -5,3 +5,5 @@ maya_ftp_config.php
 fts_ftp_config.php
 
 error_log
+
+data/
