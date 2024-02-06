@@ -4,7 +4,7 @@ require 'config.php';
 require 'functions.php';
 
 $tbl = "eastbuxton";
-$file_path = '../data/eastbuxton/EastRidgeWx_OneHour.dat'; // update 2023-12-01 by alex from original html scrape here 'https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html'
+$file_path = '/home/viuhydro/data/eastbuxton/EastRidgeWx_OneHour.dat'; // update 2023-12-01 by alex from original html scrape here 'https://hecate.hakai.org/sn/1hourSamples/last4weeks-BuxtonEast.1hourSamples.html'
 $maxRows = -24; // negative to grab end of the file
 $field_row_num = 1; // the row num of the raw input fields
 $viu_raw_keys = "DateTime,Air_Temp,Relative_Humidity,Snow_Depth,Wind_Spd,Wind_Dir,Air_Pressure,SolarRad_Avg,SolarRad_24hr,Rain,Rain_24hr,Pcp_GaugeLvl,Pcp_GaugeTemp,EnclosureTemp,Panel_Temp,BattVolt";
@@ -102,22 +102,29 @@ foreach ($rawRows as $line) {
         "PP_Tipper" => $line["Rain"],
         "PC_Raw_Pipe" => $line["Pcp_GaugeLvl"] * 1000,
         "PP_Pipe" => $PP_Pipe,
-        "Snow_Depth" => $line["Snow_Depth"] * 100, // distance to ground processed on unit
+        "Snow_Depth" => ($line["Snow_Depth"] == 0 ? 'NULL' : (3.66 - $line["Snow_Depth"]) * 100), // Check and adjust snow depth
         "Solar_Rad" => $line["SolarRad_Avg"],
         "Batt" => $line["BattVolt"]
     );
 
-    if (count($cleanRow) > 0) {
-        $fields = implode(", ", array_keys($cleanRow));
-        $values = implode("','", array_values($cleanRow));
-    }
+// Filter out keys with NULL values
+$cleanRow = array_filter($cleanRow, function ($value) {
+    return $value !== 'NULL';
+});
+
+if (count($cleanRow) > 0) {
+    $fields = implode(", ", array_keys($cleanRow));
+    $values = implode("','", array_values($cleanRow));
 
     //$query = "UPDATE `clean_$tbl` SET WatYr = $curWatYr WHERE DateTime = '$curDateTime'";
     $query = "INSERT IGNORE into `clean_$tbl` ($fields) values('$values')";
 
-   if (!mysqli_query($conn, $query)) {
-        exit("Clean Table Insert Error description: " . mysqli_error($conn));
-    }
+    if (!mysqli_query($conn, $query)) {
+         exit("Clean Table Insert Error description: " . mysqli_error($conn));
+     }
+}
+
+
 }
 mysqli_close($conn);
 ?>
