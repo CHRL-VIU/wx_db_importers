@@ -96,7 +96,7 @@ foreach ($rawRows as $line) {
         "WatYr" =>  $curWatYr,
         "Air_Temp" => $line["Air_Temp"],
         "Rh" => $line["Relative_Humidity"],
-        "BP" => $line["Air_Pressure"],
+        "BP" => $line["Air_Pressure"] / 10, // to kpa
         "Wind_Speed" => $line["Wind_Spd"] * 3.6, // to km/hr
         "Wind_Dir" => ($line["Wind_Dir"] >= 180 ? $line["Wind_Dir"] -= 180 : $line["Wind_Dir"] += 180), // rm young is backwards on tower
         "PP_Tipper" => $line["Rain"],
